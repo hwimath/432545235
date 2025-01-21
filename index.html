@@ -306,8 +306,12 @@
             saveData("2단 곱셈", playerName, score, elapsedTimeInSeconds);
         }
 
-        /* (3) '데이터 전송'을 위한 코드 - 절대 생략하지 않고 그대로 추가 */
-        function saveData(game, name, score, elapsedTime) {
+        /*
+         (3) 데이터 전송을 위한 코드 - "원본 함수"에서 문법 오류만 최소한으로 수정
+         - fetch 비동기 처리: async/await
+         - 템플릿 문자열 오류 수정
+        */
+        async function saveData(game, name, score, elapsedTime) {
             const FUNCTION_URL = "https://us-central1-record-f420d.cloudfunctions.net/report";
 
             const requestData = {
@@ -318,7 +322,8 @@
             };
 
             try {
-                const response = fetch(FUNCTION_URL, {
+                // fetch 호출에 await 사용
+                const response = await fetch(FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -326,19 +331,20 @@
                     body: JSON.stringify(requestData)
                 });
 
-                const responseData = response.json();
+                // 응답 JSON 파싱에 await 사용
+                const responseData = await response.json();
 
                 if (response.ok) {
-                    document.getElementById('response').innerText = 
-                        성공: ${JSON.stringify(responseData, null, 2)};
+                    document.getElementById('response').innerText =
+                        "성공: " + JSON.stringify(responseData, null, 2);
                 } else {
-                    document.getElementById('response').innerText = 
-                        오류: ${JSON.stringify(responseData, null, 2)};
+                    document.getElementById('response').innerText =
+                        "오류: " + JSON.stringify(responseData, null, 2);
                 }
             } catch (error) {
                 console.error('요청 실패:', error);
-                document.getElementById('response').innerText = 
-                    네트워크 오류: ${error.message};
+                document.getElementById('response').innerText =
+                    "네트워크 오류: " + error.message;
             }
         }
     </script>
